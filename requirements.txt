@@ -1,0 +1,7 @@
+fastapi>=0.115.12
+openreward
+pandas
+pyarrow
+uvicorn>=0.34.3
+math-verify[antlr4_13_2]>=0.8.0
+pydantic>=2.6.0
