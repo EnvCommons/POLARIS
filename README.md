@@ -1,6 +1,6 @@
 # POLARIS
 
-[![OpenReward Environment](https://img.shields.io/badge/%E2%AD%90%20OpenReward-Environment-f7e6cc)](https://openreward.ai/EnvCommons/polaris) [![Hugging Face Dataset](https://img.shields.io/badge/Hugging%20Face-Dataset-orange)](https://huggingface.co/datasets/POLARIS-Project/Polaris-Dataset-53K)
+[![OpenReward Environment](https://img.shields.io/badge/%E2%AD%90%20OpenReward-Environment-f7e6cc)](https://www.openreward.ai/GeneralReasoning/POLARIS) [![Hugging Face Dataset](https://img.shields.io/badge/Hugging%20Face-Dataset-orange)](https://huggingface.co/datasets/POLARIS-Project/Polaris-Dataset-53K)
 
 ## Description
 
@@ -49,7 +49,7 @@ Single-turn. The agent reads the math problem and submits one answer.
 
 ## Environment Difficulty
 
-POLARIS evaluates mathematical reasoning across 8 difficulty levels with symbolic answer verification.
+[Put environment difficulty statistics here]
 
 ## Other Environment Requirements
 
@@ -62,11 +62,10 @@ Agents in POLARIS solve mathematical problems in a standard environment. The env
 ## Citation
 
 ```bibtex
-@dataset{polaris_dataset_53k,
-  title={POLARIS-Dataset-53K},
-  author={POLARIS Project},
-  year={2024},
-  publisher={Hugging Face},
-  url={https://huggingface.co/datasets/POLARIS-Project/Polaris-Dataset-53K}
+@misc{Polaris2025,
+  title={POLARIS: A Post-Training Recipe for Scaling Reinforcement Learning on Advanced Reasoning Models},
+  url={https://hkunlp.github.io/blog/2025/Polaris},
+  author={An, Chenxin and Xie, Zhihui and Li, Xiaonan and Li, Lei and Zhang, Jun and Gong, Shansan and Zhong, Ming and Xu, Jingjing and Qiu, Xipeng and Wang, Mingxuan and Kong, Lingpeng},
+  year={2025}
 }
 ```

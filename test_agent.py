@@ -25,7 +25,7 @@ async def test_polaris_environment():
     oai_client = AsyncOpenAI(api_key=OPENAI_API_KEY)
 
     # Get environment and tasks
-    environment = or_client.environments.get(name="local/Polaris", base_url="http://localhost:8080")
+    environment = or_client.environments.get(name="GeneralReasoning/POLARIS-53K")
     tasks = await environment.list_tasks(split="train")
     tools = await environment.list_tools(format="openai")
 
