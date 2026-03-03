@@ -53,7 +53,7 @@ Single-turn. The agent reads the math problem and submits one answer.
 
 ## Other Environment Requirements
 
-None. All evaluation is deterministic using symbolic comparison.
+No external API keys required.
 
 ## Safety
 
