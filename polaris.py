@@ -35,12 +35,12 @@ CURRENCY_MARKER = re.compile(r"(?<!\\)\$(?=[\d.\-])")
 def parse_math_answer(text: str) -> list:
     text = text.strip().replace("\\%", "%")
     text = text.replace("\\$", "").replace("{,}", "")
-    if not (len(text) > 1 and text.startswith("$") and text.endswith("$")):
+    delimited = len(text) > 1 and text.startswith("$") and text.endswith("$")
+    if not delimited:
         text = CURRENCY_MARKER.sub("", text)
-    parsed = parse(text)
-    if not parsed and text and "$" not in text and "\\boxed" not in text:
-        parsed = parse(f"${text}$")
-    return parsed
+    if delimited or "\\boxed" in text or not text:
+        return parse(text)
+    return parse(f"${text}$") or parse(text)
 
 
 class PolarisTaskSpec(BaseModel):
