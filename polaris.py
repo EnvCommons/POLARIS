@@ -28,6 +28,14 @@ for i, task in enumerate(polaris_tasks):
     task["id"] = str(i)
 
 
+def parse_math_answer(text: str) -> list:
+    text = text.strip().replace("\\%", "%")
+    parsed = parse(text)
+    if not parsed and text and "$" not in text and "\\boxed" not in text:
+        parsed = parse(f"${text}$")
+    return parsed
+
+
 class PolarisTaskSpec(BaseModel):
     """Task specification for a single POLARIS problem"""
     id: str
@@ -84,8 +92,8 @@ class Polaris(Environment):
         """
         # Parse both answers using math-verify
         try:
-            gold_parsed = parse(self.config.answer)
-            submitted_parsed = parse(params.answer)
+            gold_parsed = parse_math_answer(self.config.answer)
+            submitted_parsed = parse_math_answer(params.answer)
 
             # Verify equivalence
             is_correct = verify(gold_parsed, submitted_parsed)
