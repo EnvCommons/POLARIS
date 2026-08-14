@@ -11,6 +11,7 @@ import pandas as pd
 from math_verify import parse, verify
 from pydantic import BaseModel, Field
 import os
+import re
 
 from openreward.environments import Environment, JSONObject, Server, TextBlock, ToolOutput, tool
 
@@ -28,8 +29,14 @@ for i, task in enumerate(polaris_tasks):
     task["id"] = str(i)
 
 
+CURRENCY_MARKER = re.compile(r"(?<!\\)\$(?=[\d.\-])")
+
+
 def parse_math_answer(text: str) -> list:
     text = text.strip().replace("\\%", "%")
+    text = text.replace("\\$", "").replace("{,}", "")
+    if not (len(text) > 1 and text.startswith("$") and text.endswith("$")):
+        text = CURRENCY_MARKER.sub("", text)
     parsed = parse(text)
     if not parsed and text and "$" not in text and "\\boxed" not in text:
         parsed = parse(f"${text}$")
