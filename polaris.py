@@ -11,6 +11,7 @@ import pandas as pd
 from math_verify import parse, verify
 from pydantic import BaseModel, Field
 import os
+import re
 
 from openreward.environments import Environment, JSONObject, Server, TextBlock, ToolOutput, tool
 
@@ -26,6 +27,20 @@ polaris_tasks = polaris_tasks_df.to_dict(orient="records")
 # Add task IDs for tracking
 for i, task in enumerate(polaris_tasks):
     task["id"] = str(i)
+
+
+CURRENCY_MARKER = re.compile(r"(?<!\\)\$(?=[\d.\-])")
+
+
+def parse_math_answer(text: str) -> list:
+    text = text.strip().replace("\\%", "%")
+    text = text.replace("\\$", "").replace("{,}", "")
+    delimited = len(text) > 1 and text.startswith("$") and text.endswith("$")
+    if not delimited:
+        text = CURRENCY_MARKER.sub("", text)
+    if delimited or "\\boxed" in text or not text:
+        return parse(text)
+    return parse(f"${text}$") or parse(text)
 
 
 class PolarisTaskSpec(BaseModel):
@@ -84,8 +99,8 @@ class Polaris(Environment):
         """
         # Parse both answers using math-verify
         try:
-            gold_parsed = parse(self.config.answer)
-            submitted_parsed = parse(params.answer)
+            gold_parsed = parse_math_answer(self.config.answer)
+            submitted_parsed = parse_math_answer(params.answer)
 
             # Verify equivalence
             is_correct = verify(gold_parsed, submitted_parsed)
