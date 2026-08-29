@@ -43,6 +43,11 @@ def parse_math_answer(text: str) -> list:
     return parse(f"${text}$") or parse(text)
 
 
+# Reward for a submission made after the task has already been graded. Negative
+# so repeat submissions are actively discouraged, not merely left unscored.
+REPEAT_SUBMISSION_PENALTY = -0.1
+
+
 class PolarisTaskSpec(BaseModel):
     """Task specification for a single POLARIS problem"""
     id: str
@@ -67,6 +72,11 @@ class Polaris(Environment):
     def __init__(self, task_spec: JSONObject, secrets: dict[str, str] = {}) -> None:
         super().__init__(task_spec)
         self.config = PolarisTaskSpec.model_validate(task_spec)
+
+        # Graded submissions this session. Only the first is rewarded: an
+        # incorrect answer reports "Expected: <answer>", so an uncapped tool
+        # would let the agent read the answer and resubmit it.
+        self.submitted = 0
 
     @classmethod
     def list_splits(cls) -> list[str]:
@@ -97,6 +107,17 @@ class Polaris(Environment):
         The answer will be verified using symbolic math comparison,
         so equivalent mathematical expressions will be accepted.
         """
+        if self.submitted > 0:
+            return ToolOutput(
+                blocks=[TextBlock(type="text", text="An answer has already been submitted for "
+                                  "this task. This episode is over: it is not re-graded, and "
+                                  "repeat submissions are penalised (reward -0.1).")],
+                metadata={"task_id": self.config.id, "already_submitted": True,
+                          "submission_count": self.submitted},
+                reward=REPEAT_SUBMISSION_PENALTY,
+                finished=True,
+            )
+
         # Parse both answers using math-verify
         try:
             gold_parsed = parse_math_answer(self.config.answer)
@@ -111,6 +132,8 @@ class Polaris(Environment):
         # Determine reward and feedback
         reward = 1.0 if is_correct else 0.0
         feedback = "Correct!" if is_correct else f"Incorrect. Expected: {self.config.answer}"
+
+        self.submitted += 1
 
         return ToolOutput(
             blocks=[TextBlock(type="text", text=feedback)],
