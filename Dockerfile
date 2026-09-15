@@ -22,6 +22,7 @@ RUN uv venv --python 3.11
 COPY requirements.txt /app/
 COPY polaris.py /app/
 COPY server.py /app/
+COPY old_ids.json /app/
 
 # Install Python dependencies
 RUN uv pip install -r /app/requirements.txt

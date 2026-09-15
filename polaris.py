@@ -7,11 +7,14 @@ Task: Single-turn answer verification for math reasoning
 
 from __future__ import annotations
 
+import json
+import os
+import re
+from pathlib import Path
+
 import pandas as pd
 from math_verify import parse, verify
 from pydantic import BaseModel, Field
-import os
-import re
 
 from openreward.environments import Environment, JSONObject, Server, TextBlock, ToolOutput, tool
 
@@ -27,6 +30,21 @@ polaris_tasks = polaris_tasks_df.to_dict(orient="records")
 # Add task IDs for tracking
 for i, task in enumerate(polaris_tasks):
     task["id"] = str(i)
+
+# "train_old" is the subset of "train" whose problem text passes a
+# pre-2000-knowledge cutoff filter (regex prefilter + deepseek-v4.1-flash
+# verdict, with a standalone re-verification step before any learned term
+# is folded into the shared regex -- see cutoff1999.py/filter_data.py).
+# old_ids.json holds the (string) ids of surviving rows, computed offline.
+_OLD_IDS_PATH = Path(__file__).parent / "old_ids.json"
+_old_ids_cache: set[str] | None = None
+
+
+def _load_old_ids() -> set[str]:
+    global _old_ids_cache
+    if _old_ids_cache is None:
+        _old_ids_cache = set(json.loads(_OLD_IDS_PATH.read_text()))
+    return _old_ids_cache
 
 
 CURRENCY_MARKER = re.compile(r"(?<!\\)\$(?=[\d.\-])")
@@ -81,13 +99,16 @@ class Polaris(Environment):
     @classmethod
     def list_splits(cls) -> list[str]:
         """Return available data splits"""
-        return ["train"]
+        return ["train", "train_old"]
 
     @classmethod
     def list_tasks(cls, split: str) -> list[JSONObject]:
         """Return task specifications for the given split"""
         if split == "train":
             return polaris_tasks
+        if split == "train_old":
+            old_ids = _load_old_ids()
+            return [t for t in polaris_tasks if t["id"] in old_ids]
         raise ValueError(f"Unknown split: {split}. Available splits: {cls.list_splits()}")
 
     def get_prompt(self) -> list[TextBlock]:
