@@ -1,5 +1,5 @@
 fastapi>=0.115.12
-openreward
+openreward>=0.1.157
 pandas
 pyarrow
 uvicorn>=0.34.3
