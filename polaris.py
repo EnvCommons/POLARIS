@@ -92,8 +92,7 @@ class Polaris(Environment):
         self.config = PolarisTaskSpec.model_validate(task_spec)
 
         # Graded submissions this session. Only the first is rewarded: an
-        # incorrect answer reports "Expected: <answer>", so an uncapped tool
-        # would let the agent read the answer and resubmit it.
+        # uncapped tool would let the agent resubmit after a wrong answer.
         self.submitted = 0
 
     @classmethod
@@ -152,7 +151,7 @@ class Polaris(Environment):
 
         # Determine reward and feedback
         reward = 1.0 if is_correct else 0.0
-        feedback = "Correct!" if is_correct else f"Incorrect. Expected: {self.config.answer}"
+        feedback = "Correct!" if is_correct else "Incorrect."
 
         self.submitted += 1
 
@@ -161,7 +160,6 @@ class Polaris(Environment):
             metadata={
                 "task_id": self.config.id,
                 "submitted_answer": params.answer,
-                "expected_answer": self.config.answer,
                 "correct": is_correct,
                 "difficulty": self.config.difficulty,
             },

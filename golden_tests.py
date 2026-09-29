@@ -53,6 +53,8 @@ async def test_wrong_answer(sampled_tasks: list[JSONObject], task_idx: int):
     assert output.finished is True, "Expected finished=True"
     assert output.metadata["correct"] is False, "Expected correct=False in metadata"
     assert len(output.blocks) > 0, "Expected feedback blocks"
+    assert "expected_answer" not in output.metadata, "Expected no reference answer in metadata"
+    assert "Expected:" not in output.blocks[0].text, "Expected no reference answer in feedback"
 
 
 def test_train_old_split_size():
