@@ -143,6 +143,18 @@ class Polaris(Environment):
             gold_parsed = parse_math_answer(self.config.answer)
             submitted_parsed = parse_math_answer(params.answer)
 
+            # An empty answer, or one with no number or expression to parse, is
+            # never compared with the reference, so it is not the graded attempt.
+            if not submitted_parsed:
+                return ToolOutput(
+                    blocks=[TextBlock(type="text", text="Your answer is empty or could not be parsed "
+                                      "as a number or expression, so nothing was graded. Submit your "
+                                      "final number or expression.")],
+                    metadata={"task_id": self.config.id, "error": "unparseable_answer"},
+                    reward=0.0,
+                    finished=False,
+                )
+
             # Verify equivalence
             is_correct = verify(gold_parsed, submitted_parsed)
         except Exception:

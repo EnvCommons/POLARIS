@@ -57,6 +57,19 @@ async def test_wrong_answer(sampled_tasks: list[JSONObject], task_idx: int):
     assert "Expected:" not in output.blocks[0].text, "Expected no reference answer in feedback"
 
 
+@pytest.mark.asyncio
+@pytest.mark.parametrize("answer", ["", "   ", "\\boxed{}", "$"])
+async def test_unparseable_answer_is_not_graded(sampled_tasks: list[JSONObject], answer: str):
+    """An empty or unparseable answer is not graded and leaves the attempt open"""
+    env = Polaris(task_spec=sampled_tasks[0])
+    output = await env.answer(AnswerParams(answer=answer))
+    assert output.reward == 0.0
+    assert output.finished is False, "Expected finished=False for an ungraded answer"
+    assert env.submitted == 0
+    output = await env.answer(AnswerParams(answer=env.config.answer))
+    assert output.reward == 1.0 and output.finished is True
+
+
 def test_train_old_split_size():
     assert len(Polaris.list_tasks("train_old")) == 45840
 

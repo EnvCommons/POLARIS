@@ -41,7 +41,7 @@ Data consists of a Parquet file (`polaris_tasks.parquet`, ~11 MB) sourced from [
 
 | Tool | Description |
 |------|-------------|
-| `answer` | Submit your final answer (number or expression). Ends the episode. |
+| `answer` | Submit your final answer (number or expression). Ends the episode, unless the answer is empty or cannot be parsed, which is not graded. |
 
 ## Time Horizon
 
