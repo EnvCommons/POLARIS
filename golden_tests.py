@@ -29,6 +29,8 @@ async def test_golden_answer(sampled_tasks: list[JSONObject], task_idx: int):
     """Test that correct answers are accepted"""
     task = sampled_tasks[task_idx]
     env = Polaris(task_spec=task)
+    if env.uses_judge():
+        pytest.skip("judge-graded row: needs a live judge; test_fixed_grading.py covers it with a mocked judge")
 
     # Submit the correct answer
     output = await env.answer(AnswerParams(answer=env.config.answer))
@@ -45,6 +47,8 @@ async def test_wrong_answer(sampled_tasks: list[JSONObject], task_idx: int):
     """Test that incorrect answers are rejected"""
     task = sampled_tasks[task_idx]
     env = Polaris(task_spec=task)
+    if env.uses_judge():
+        pytest.skip("judge-graded row: needs a live judge; test_fixed_grading.py covers it with a mocked judge")
 
     # Submit an obviously wrong answer
     output = await env.answer(AnswerParams(answer="definitely_wrong_answer_12345"))
@@ -61,7 +65,8 @@ async def test_wrong_answer(sampled_tasks: list[JSONObject], task_idx: int):
 @pytest.mark.parametrize("answer", ["", "   ", "\\boxed{}", "$"])
 async def test_unparseable_answer_is_not_graded(sampled_tasks: list[JSONObject], answer: str):
     """An empty or unparseable answer is not graded and leaves the attempt open"""
-    env = Polaris(task_spec=sampled_tasks[0])
+    # a math_verify row: judge rows are covered in test_fixed_grading.py
+    env = next(e for e in (Polaris(task_spec=t) for t in sampled_tasks) if not e.uses_judge())
     output = await env.answer(AnswerParams(answer=answer))
     assert output.reward == 0.0
     assert output.finished is False, "Expected finished=False for an ungraded answer"
