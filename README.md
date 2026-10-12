@@ -34,11 +34,11 @@ Tasks span 8 difficulty levels from easy (0/8) to hard (7/8).
 
 This is a single-turn environment. The agent submits an answer via the `answer` tool, and only the first graded answer is rewarded; a repeat submission gets a reward of -0.1, and an empty answer is not graded and leaves the episode open.
 
-Most tasks (49,756) are verified by symbolic comparison with math_verify, handling equivalent expressions (e.g., "1/2" equals "0.5"); reward is 1.0 if correct and 0.0 otherwise. The other 3,535 tasks are graded by an LLM judge (gpt-5-mini by default): 872 questions whose key math_verify cannot compare reliably (several valid answers, text answers, relations) get a correct/incorrect verdict (reward 1.0 or 0.0), and 2,663 proof tasks get a 0-7 rubric score against a reference proof (reward = score / 7). If the judge cannot be reached, the submission is returned without a reward instead of being scored 0.
+Most tasks (49,674) are verified by symbolic comparison with math_verify, handling equivalent expressions (e.g., "1/2" equals "0.5"); reward is 1.0 if correct and 0.0 otherwise. The other 3,617 tasks are graded by an LLM judge (gpt-5-mini by default): 934 questions whose key math_verify cannot compare reliably (several valid answers, text answers, relations) get a correct/incorrect verdict (reward 1.0 or 0.0), and 2,683 proof tasks get a 0-7 rubric score against a reference proof (reward = score / 7). If the judge cannot be reached, the submission is returned without a reward instead of being scored 0.
 
 ## Data
 
-Data consists of a Parquet file (`polaris_tasks.parquet`, ~27 MB) built from [HuggingFace POLARIS-Project/Polaris-Dataset-53K](https://huggingface.co/datasets/POLARIS-Project/Polaris-Dataset-53K). Each row contains a problem statement, the answer key and the difficulty level, plus the grading mode, the answer format, judge notes (accepted answers or a proof rubric) and, for the 6,409 repaired rows, the original problem and key. Data is stored on the OpenReward platform.
+Data consists of a Parquet file (`polaris_tasks.parquet`, ~27 MB) built from [HuggingFace POLARIS-Project/Polaris-Dataset-53K](https://huggingface.co/datasets/POLARIS-Project/Polaris-Dataset-53K). Each row contains a problem statement, the answer key and the difficulty level, plus the grading mode, the answer format, judge notes (accepted answers or a proof rubric) and, for the 6,605 repaired rows, the original problem and key. Data is stored on the OpenReward platform.
 
 ## Tools
 
@@ -56,7 +56,7 @@ Single-turn. The agent reads the math problem and submits one answer.
 
 ## Other Environment Requirements
 
-The 3,535 judge-graded tasks need an OpenAI API key, passed as the `openai_api_key` secret. The judge follows `OPENAI_BASE_URL` when it is set, so it can be pointed at any OpenAI-compatible endpoint. Tasks verified by math_verify need no key.
+The 3,617 judge-graded tasks need an OpenAI API key, passed as the `openai_api_key` secret. The judge follows `OPENAI_BASE_URL` when it is set, so it can be pointed at any OpenAI-compatible endpoint. Tasks verified by math_verify need no key.
 
 ## Safety
 
