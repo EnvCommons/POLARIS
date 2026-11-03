@@ -1,6 +1,6 @@
 # POLARIS
 
-[![OpenReward Environment](https://img.shields.io/badge/%E2%AD%90%20OpenReward-Environment-f7e6cc)](https://www.openreward.ai/GeneralReasoning/POLARIS-53K) [![Hugging Face Dataset](https://img.shields.io/badge/Hugging%20Face-Dataset-orange)](https://huggingface.co/datasets/POLARIS-Project/Polaris-Dataset-53K)
+[![OpenReward Environment](https://img.shields.io/badge/%E2%AD%90%20OpenReward-Environment-f7e6cc)](https://openreward.ai/GeneralReasoning/POLARIS-53K) [![Hugging Face Dataset](https://img.shields.io/badge/Hugging%20Face-Dataset-orange)](https://huggingface.co/datasets/POLARIS-Project/Polaris-Dataset-53K)
 
 ## Description
 
@@ -50,10 +50,6 @@ Data consists of a Parquet file (`polaris_tasks.parquet`, ~27 MB) built from [Hu
 
 Single-turn. The agent reads the math problem and submits one answer.
 
-## Environment Difficulty
-
-[Put environment difficulty statistics here]
-
 ## Other Environment Requirements
 
 The 3,617 judge-graded tasks need an OpenAI API key, passed as the `openai_api_key` secret. The judge follows `OPENAI_BASE_URL` when it is set, so it can be pointed at any OpenAI-compatible endpoint. Tasks verified by math_verify need no key.
@@ -62,7 +58,7 @@ The 3,617 judge-graded tasks need an OpenAI API key, passed as the `openai_api_k
 
 Agents in POLARIS solve mathematical problems in a standard environment. The environment does not present direct safety risks.
 
-## Citation
+## Citations
 
 ```bibtex
 @misc{Polaris2025,
