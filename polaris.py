@@ -102,7 +102,8 @@ def _load_old_ids() -> set[str]:
 # train_old also leaves out the web links some statements were scraped with:
 # train_old_problem_fixes.json holds the statements with the link removed (the
 # linked word kept), and train_old_drops.json the tasks whose figure is only a
-# link. Both are written by scripts/train_old_cleanup.py; ids are unchanged.
+# link or Asymptote [asy] code. Both are written by scripts/train_old_cleanup.py;
+# ids are unchanged.
 _FIXES_PATH = Path(__file__).parent / "train_old_problem_fixes.json"
 _DROPS_PATH = Path(__file__).parent / "train_old_drops.json"
 _train_old_cache: list[dict] | None = None

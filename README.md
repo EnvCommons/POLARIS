@@ -26,7 +26,7 @@ Agents are given a standard environment with no sandbox or file system access.
 There are two splits in this environment:
 
 - **train**: 53,291 tasks
-- **train_old**: 45,792 tasks, the subset of train whose problem text passes a pre-2000 knowledge cutoff filter, with web links removed from the statements (`train_old_problem_fixes.json`) and the tasks whose figure is only a link left out (`train_old_drops.json`)
+- **train_old**: 45,147 tasks, the subset of train whose problem text passes a pre-2000 knowledge cutoff filter, with web links removed from the statements (`train_old_problem_fixes.json`) and the tasks whose figure is only a link or Asymptote code left out (`train_old_drops.json`)
 
 Tasks span 8 difficulty levels from easy (0/8) to hard (7/8).
 
