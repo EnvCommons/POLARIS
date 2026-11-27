@@ -76,13 +76,26 @@ async def test_unparseable_answer_is_not_graded(sampled_tasks: list[JSONObject],
 
 
 def test_train_old_split_size():
-    assert len(Polaris.list_tasks("train_old")) == 45840
+    # 45,840 rows pass the cutoff filter; train_old_drops.json removes 693 of them
+    assert len(Polaris.list_tasks("train_old")) == 45147
 
 
 def test_train_old_is_subset_of_train():
-    old_problems = {t["problem"] for t in Polaris.list_tasks("train_old")}
-    full_problems = {t["problem"] for t in Polaris.list_tasks("train")}
-    assert old_problems <= full_problems
+    full = {t["id"]: t for t in Polaris.list_tasks("train")}
+    for task in Polaris.list_tasks("train_old"):
+        assert {**task, "problem": None} == {**full[task["id"]], "problem": None}
+
+
+def test_no_asymptote_in_train_old():
+    for task in Polaris.list_tasks("train_old"):
+        assert "[asy]" not in task["problem"].lower(), task["id"]
+
+
+def test_no_links_in_train_old():
+    import re
+    link = re.compile(r"https?://|www\.|\b[\w-]+\.(?:com|org|net)/", re.IGNORECASE)
+    for task in Polaris.list_tasks("train_old"):
+        assert not link.search(task["problem"]), task["id"]
 
 
 def test_no_base_post_2000_markers_in_train_old():
