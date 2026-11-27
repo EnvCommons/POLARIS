@@ -99,6 +99,29 @@ def _load_old_ids() -> set[str]:
     return _old_ids_cache
 
 
+# train_old also leaves out the web links some statements were scraped with:
+# train_old_problem_fixes.json holds the statements with the link removed (the
+# linked word kept), and train_old_drops.json the tasks whose figure is only a
+# link. Both are written by scripts/train_old_cleanup.py; ids are unchanged.
+_FIXES_PATH = Path(__file__).parent / "train_old_problem_fixes.json"
+_DROPS_PATH = Path(__file__).parent / "train_old_drops.json"
+_train_old_cache: list[dict] | None = None
+
+
+def _train_old_tasks() -> list[dict]:
+    global _train_old_cache
+    if _train_old_cache is None:
+        old_ids = _load_old_ids()
+        fixes: dict[str, str] = json.loads(_FIXES_PATH.read_text())
+        dropped = {d["id"] for d in json.loads(_DROPS_PATH.read_text())}
+        _train_old_cache = [
+            {**t, "problem": fixes[t["id"]]} if t["id"] in fixes else t
+            for t in polaris_tasks
+            if t["id"] in old_ids and t["id"] not in dropped
+        ]
+    return _train_old_cache
+
+
 CURRENCY_MARKER = re.compile(r"(?<!\\)\$(?=[\d.\-])")
 
 
@@ -463,8 +486,7 @@ class Polaris(Environment):
         if split == "train":
             return polaris_tasks
         if split == "train_old":
-            old_ids = _load_old_ids()
-            return [t for t in polaris_tasks if t["id"] in old_ids]
+            return _train_old_tasks()
         raise ValueError(f"Unknown split: {split}. Available splits: {cls.list_splits()}")
 
     def get_prompt(self) -> list[TextBlock]:
