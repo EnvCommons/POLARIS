@@ -582,3 +582,19 @@ async def test_live_smoke_edited_rows():
     for o in outs:
         assert o.finished and o.metadata["grading_mode"] != "ungraded", o.metadata
         assert o.reward == 0.0
+
+
+def test_answer_params_accept_numbers_and_normalise_numeric_strings():
+    import pydantic
+    for raw, want in [(5, "5"), (-3, "-3"), (5.0, "5"), (2.5, "2.5"), (" +05 ", "5"),
+                      ("1,000", "1000"), ("5.", "5"), ("+2.50", "2.50"), (".5", "0.5"), ("-0", "0")]:
+        assert AnswerParams(answer=raw).answer == want, raw
+    for raw in ["sqrt(2)", " 3/a ", "1,5", "1,00", "x=5", "\\frac{1}{2}", "1e5", " proof text ", "5 6"]:
+        assert AnswerParams(answer=raw).answer == raw, raw
+    with pytest.raises(pydantic.ValidationError):
+        AnswerParams(answer=True)
+
+
+def test_numeric_tool_arg_graded_like_string():
+    for raw in (7, 7.0, "7", " +7 "):
+        assert polaris.math_verify_grade("7", AnswerParams.model_validate({"answer": raw}).answer), raw

@@ -34,7 +34,7 @@ import httpx
 import openai
 import pandas as pd
 from math_verify import parse, verify
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from openreward.chat_backends import OpenAIChatConfig, resolve_backend
 from openreward.environments import Environment, JSONObject, Server, TextBlock, ToolOutput, tool
@@ -383,9 +383,43 @@ class PolarisTaskSpec(BaseModel):
         return self
 
 
+_PLAIN_NUMBER = re.compile(r"([+-]?)(\d{1,3}(?:,\d{3})+|\d+)(?:\.(\d*))?|([+-]?)\.(\d+)")
+
+
+def normalise_numeric_string(v: str) -> str:
+    """Normalise a string that is a plain number (sign, digits, optional thousands commas or
+    decimal part, surrounding spaces, trailing '.'); return any other string unchanged."""
+    m = _PLAIN_NUMBER.fullmatch(v.strip())
+    if not m:
+        return v
+    if m.group(2) is not None:
+        sign, whole, frac = m.group(1), m.group(2).replace(",", ""), m.group(3) or ""
+        whole = str(int(whole)) if len(whole) <= 4000 else whole
+    else:
+        sign, whole, frac = m.group(4), "0", m.group(5)
+    sign = "-" if sign == "-" and (whole.strip("0") or frac.strip("0")) else ""
+    return f"{sign}{whole}.{frac}" if frac else f"{sign}{whole}"
+
+
 class AnswerParams(BaseModel):
     """Input parameters for the answer tool"""
     answer: str = Field(..., description="Your final answer to the problem")
+
+    @field_validator("answer", mode="before")
+    @classmethod
+    def _coerce_number(cls, v):
+        """A JSON number is accepted as its string (5 / 5.0 -> "5", 2.5 -> "2.5"); a string
+        that is a plain number is normalised (" +05 " -> "5", "1,000" -> "1000", "5." -> "5").
+        Every other string (expression, fraction, LaTeX, proof text) is left exactly as given."""
+        if isinstance(v, bool):
+            return v  # not a number answer: validation rejects it
+        if isinstance(v, int):
+            return str(v)
+        if isinstance(v, float):
+            return str(int(v)) if v.is_integer() and abs(v) < 1e15 else repr(v)
+        if isinstance(v, str):
+            return normalise_numeric_string(v)
+        return v
 
 
 class Polaris(Environment):
